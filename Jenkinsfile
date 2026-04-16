@@ -8,10 +8,12 @@ pipeline {
         }
         stage('2. Linting (Check HTML)') {
             steps {
-                echo 'Validando el código HTML...'
-                // Si quieres que falle de verdad, aquí instalaríamos 'tidy' 
-                // Por ahora, simulamos el chequeo con un script simple
-                sh 'grep -q "</p>" index.html || (echo "ERROR: Etiqueta p no cerrada" && exit 1)'
+                echo 'Validando cierre de etiquetas...'
+                // Este comando busca específicamente si hay un <p> que NO tiene su </p> después
+                sh 'grep -q "</p>" index.html || (echo "ERROR: Falta etiqueta de cierre </p>" && exit 1)'
+                
+                // Opcional: Forzar fallo si encuentra la cadena exacta del error
+                sh '! grep -F "<p>davidov estuvo aquí <p>" index.html' 
             }
         }
         stage('3. Build Docker Image') {
