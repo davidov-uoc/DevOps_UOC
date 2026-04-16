@@ -6,34 +6,33 @@ pipeline {
                 checkout scm
             }
         }
-        stage('2. Linting (Check HTML)') {
+        stage('2. Linting (Validar HTML)') {
             steps {
-                echo 'Validando cierre de etiquetas...'
-                // 1. Verificamos que al menos exista un cierre de etiqueta </p>
-                sh 'grep -q "</p>" index.html'
-                
-                echo 'Buscando errores de sintaxis específicos...'
-                // 2. Si encuentra la etiqueta mal abierta "<p>" sin el ">", el pipeline SE PARA.
-                // Usamos un if simple que es más estable en Jenkins
+                echo 'Analizando el código del alumno...'
                 sh '''
-                    if grep -q "<p>davidov estuvo aquí <p>" index.html; then
-                        echo "ERROR: Se ha detectado una etiqueta mal cerrada en la aportación de Davidov."
+                    # Contamos cuántas etiquetas se abren y cuántas se cierran
+                    OPENS=$(grep -o "<p>" index.html | wc -l)
+                    CLOSES=$(grep -o "</p>" index.html | wc -l)
+                    
+                    echo "Etiquetas abiertas: $OPENS"
+                    echo "Etiquetas cerradas: $CLOSES"
+                    
+                    if [ "$OPENS" -ne "$CLOSES" ]; then
+                        echo "------------------------------------------------------"
+                        echo "ERROR: ¡Sintaxis HTML incorrecta detectada!"
+                        echo "Has dejado etiquetas <p> sin cerrar con </p>."
+                        echo "------------------------------------------------------"
                         exit 1
+                    else
+                        echo "Felicidades: Todo parece estar bien cerrado."
                     fi
                 '''
             }
         }
-        stage('3. Build Docker Image') {
+        stage('3. Docker Build') {
             steps {
-                sh 'docker build -t mi-web-uoc:${BUILD_NUMBER} .'
-                sh 'docker tag mi-web-uoc:${BUILD_NUMBER} mi-web-uoc:latest'
-            }
-        }
-        stage('4. Deploy to Minikube') {
-            steps {
-                echo 'Desplegando en Kubernetes...'
-                // Aquí iría el comando kubectl si Minikube está corriendo
-                sh 'minikube status && kubectl apply -f deployment.yaml || echo "Minikube no disponible"'
+                echo 'Construyendo la imagen Docker...'
+                sh 'docker build -t mi-web-uoc:${BRANCH_NAME} .'
             }
         }
     }
