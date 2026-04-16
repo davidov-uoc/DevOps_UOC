@@ -6,25 +6,20 @@ pipeline {
                 checkout scm
             }
         }
-        stage('2. Linting (Validar HTML)') {
+        stage('2. Linting (Check HTML)') {
             steps {
-                echo 'Analizando el código del alumno...'
+                echo 'Validando integridad del HTML...'
                 sh '''
-                    # Contamos cuántas etiquetas se abren y cuántas se cierran
-                    OPENS=$(grep -o "<p>" index.html | wc -l)
-                    CLOSES=$(grep -o "</p>" index.html | wc -l)
-                    
-                    echo "Etiquetas abiertas: $OPENS"
-                    echo "Etiquetas cerradas: $CLOSES"
-                    
-                    if [ "$OPENS" -ne "$CLOSES" ]; then
-                        echo "------------------------------------------------------"
-                        echo "ERROR: ¡Sintaxis HTML incorrecta detectada!"
-                        echo "Has dejado etiquetas <p> sin cerrar con </p>."
-                        echo "------------------------------------------------------"
+                    # Contamos cuántas veces aparece <p y cuántas </p
+                    TOTAL_OPEN=$(grep -o "<p" index.html | wc -l)
+                    TOTAL_CLOSE=$(grep -o "</p" index.html | wc -l)
+        
+                    if [ "$TOTAL_OPEN" -ne "$TOTAL_CLOSE" ]; then
+                        echo "ERROR DE VALIDACIÓN: Etiquetas mal cerradas."
+                        echo "Abiertas: $TOTAL_OPEN | Cerradas: $TOTAL_CLOSE"
                         exit 1
                     else
-                        echo "Felicidades: Todo parece estar bien cerrado."
+                        echo "HTML validado correctamente."
                     fi
                 '''
             }
