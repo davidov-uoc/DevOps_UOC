@@ -42,6 +42,7 @@ pipeline {
                 }
             }
         }
+    }
     
     post {
         failure { echo 'Build fallido: El codigo no cumple los requisitos de calidad.' }
