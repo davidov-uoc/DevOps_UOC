@@ -10,17 +10,29 @@ pipeline {
             steps {
                 echo 'Validando integridad del HTML...'
                 sh '''
-                    # Contamos cuántas veces aparece <p y cuántas </p
-                    TOTAL_OPEN=$(grep -o "<p" index.html | wc -l)
-                    TOTAL_CLOSE=$(grep -o "</p" index.html | wc -l)
-        
+                    # 1. Verificar que todas las etiquetas <p> tengan su cierre >
+                    if grep -E "<p[^>]*$" index.html; then
+                        echo "❌ ERROR: Etiqueta <p sin cerrar correctamente"
+                        exit 1
+                    fi
+                    
+                    # 2. Verificar que todas las etiquetas </p> terminen en >
+                    if grep -E "</p[^>]*$" index.html; then
+                        echo "❌ ERROR: Etiqueta </p sin cerrar correctamente"
+                        exit 1
+                    fi
+                    
+                    # 3. Contar etiquetas abiertas y cerradas (solo completas)
+                    TOTAL_OPEN=$(grep -oE "<p[ >]" index.html | wc -l)
+                    TOTAL_CLOSE=$(grep -oE "</p>" index.html | wc -l)
+                    
                     if [ "$TOTAL_OPEN" -ne "$TOTAL_CLOSE" ]; then
-                        echo "ERROR DE VALIDACIÓN: Etiquetas mal cerradas."
+                        echo "❌ ERROR: Etiquetas <p> desbalanceadas"
                         echo "Abiertas: $TOTAL_OPEN | Cerradas: $TOTAL_CLOSE"
                         exit 1
-                    else
-                        echo "HTML validado correctamente."
                     fi
+                    
+                    echo "✅ HTML validado correctamente"
                 '''
             }
         }
