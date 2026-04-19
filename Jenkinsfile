@@ -32,8 +32,14 @@ pipeline {
         stage('3. Build & Deploy') {
             when { branch 'main' }
             steps {
-                sh 'docker build -t mi-web-uoc:${BUILD_NUMBER} .'
-                echo "Imagen construida. Listo para deploy."
+                script {
+                    // Construimos la imagen con el número de build
+                    sh "docker build -t mi-web-uoc:${BUILD_NUMBER} ."
+                    // Ponemos la etiqueta 'latest' apuntando al nuevo build
+                    sh "docker tag mi-web-uoc:${BUILD_NUMBER} mi-web-uoc:latest"
+                    
+                    echo "Imagen mi-web-uoc:${BUILD_NUMBER} creada y etiquetada como latest."
+                }
             }
         }
     }
