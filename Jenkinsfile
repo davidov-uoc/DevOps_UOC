@@ -40,7 +40,7 @@ pipeline {
                 sh "kubectl rollout restart deployment mi-web-uoc"
             }
         }
-    } // Cierre de stages
+    }
     
     post {
         success { echo 'Despliegue en Kubernetes completado.' }
