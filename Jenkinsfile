@@ -10,7 +10,7 @@ pipeline {
             steps {
                 script {
                     def html = "index.html"
-                    def badFormat = sh(script: "grep -E '<p[^>]*\\$|<p[^>]*<|</p[^>]*\\$|</p[^>]*<' ${html}", returnStatus: true)
+                    def badFormat = sh(script: 'grep -E "<p[^>]*$|<p[^>]*<|</p[^>]*$|</p[^>]*<" index.html', returnStatus: true)
                     def opens = sh(script: "grep -oE '<p[[:space:]>]' ${html} | wc -l", returnStdout: true).trim().toInteger()
                     def closes = sh(script: "grep -oE '</p>' ${html} | wc -l", returnStdout: true).trim().toInteger()
 
