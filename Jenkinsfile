@@ -10,7 +10,7 @@ pipeline {
             steps {
                 script {
                     def html = "index.html"
-                    def badFormat = sh(script: "grep -E '<p[^>]*\$|<p[^>]*<|</p[^>]*\$|</p[^>]*<' ${html}", returnStatus: true)
+                    def badFormat = sh(script: "grep -E '<p[^>]*\\$|<p[^>]*<|</p[^>]*\\$|</p[^>]*<' ${html}", returnStatus: true)
                     def opens = sh(script: "grep -oE '<p[[:space:]>]' ${html} | wc -l", returnStdout: true).trim().toInteger()
                     def closes = sh(script: "grep -oE '</p>' ${html} | wc -l", returnStdout: true).trim().toInteger()
 
@@ -31,13 +31,12 @@ pipeline {
             }
         }
 
-        stage('4. Deploy to Kubernetes') {
+        stage('4. Deploy to Kubernetes (Deployment only)') {
             when { branch 'main' }
             steps {
                 script {
                     sh '''
                     kubectl apply -f deployment.yaml
-                    kubectl apply -f service.yaml
                     kubectl rollout restart deployment webuoc
                     '''
                 }
@@ -47,7 +46,7 @@ pipeline {
 
     post {
         success {
-            echo 'Build y despliegue en Kubernetes completado correctamente.'
+            echo 'Build y despliegue (solo Deployment) completado.'
         }
     }
 }
