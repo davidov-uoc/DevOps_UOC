@@ -1,11 +1,11 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('1. Checkout') {
             steps { checkout scm }
         }
-        
+
         stage('2. Linting (HTML Check)') {
             steps {
                 script {
@@ -20,19 +20,34 @@ pipeline {
                 }
             }
         }
-        
+
         stage('3. Build & Tag') {
             when { branch 'main' }
             steps {
                 script {
-                    sh "docker build -t mi-web-uoc:${BUILD_NUMBER} ."
-                    sh "docker tag mi-web-uoc:${BUILD_NUMBER} mi-web-uoc:latest"
+                    sh 'docker build -t mi-web-uoc:${BUILD_NUMBER} .'
+                    sh 'docker tag mi-web-uoc:${BUILD_NUMBER} mi-web-uoc:latest'
+                }
+            }
+        }
+
+        stage('4. Deploy to Kubernetes') {
+            when { branch 'main' }
+            steps {
+                script {
+                    sh '''
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
+                    kubectl rollout restart deployment webuoc
+                    '''
                 }
             }
         }
     }
-    
+
     post {
-        success { echo 'Despliegue en Kubernetes completado.' }
+        success {
+            echo 'Build y despliegue en Kubernetes completado correctamente.'
+        }
     }
 }
