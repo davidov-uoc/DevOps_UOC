@@ -30,6 +30,15 @@ pipeline {
                 }
             }
         }
+        stage('4. Deploy to Kubernetes') {
+            when { branch 'main' }
+            steps {
+                // Aplicamos la configuración de los 2 pods
+                sh "kubectl apply -f deployment.yaml"
+                // Forzamos el refresco para que cojan la nueva imagen
+                sh "kubectl rollout restart deployment mi-web-uoc"
+            }
+        }
     }
     
     post {
