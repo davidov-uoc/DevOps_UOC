@@ -5,7 +5,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: webuoc
+    app: web-uoc
   ports:
     - protocol: TCP
       port: 80          # puerto del servicio
