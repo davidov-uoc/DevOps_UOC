@@ -40,16 +40,14 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # Le decimos a sudo que use la configuración de Minikube de davidov
-                    sudo minikube image load mi-web-uoc:latest --profile minikube --user davidov
+                    # Forzamos a sudo a mirar en la carpeta de davidov para encontrar las llaves RSA
+                    sudo MINIKUBE_HOME=/home/davidov minikube image load mi-web-uoc:latest
                     
-                    # 1. Aplicamos el deployment
+                    # Aplicamos los cambios con kubectl (que ya vimos que Jenkins sí llega)
                     kubectl apply -f deployment.yaml
-                    
-                    # 2. Aplicamos el service
                     kubectl apply -f service.yaml
                     
-                    # 3. Forzamos el reinicio
+                    # Forzamos el reinicio
                     kubectl rollout restart deployment mi-web-uoc
                     '''
                 }
