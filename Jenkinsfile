@@ -35,20 +35,30 @@ pipeline {
             }
         }
 
-        stage('4. Deploy to Kubernetes') {
+        stage('4. Deploy to Kubernetes (Debug)') {
             when { branch 'main' }
             steps {
                 script {
                     sh '''
-                    # Forzamos a sudo a mirar en la carpeta de davidov para encontrar las llaves RSA
-                    sudo MINIKUBE_HOME=/home/davidov minikube image load mi-web-uoc:latest
-                    
-                    # Aplicamos los cambios con kubectl (que ya vimos que Jenkins sí llega)
+                    echo "--- 1. ¿Quién soy y qué veo? ---"
+                    id
+                    ls -la /home/davidov/.minikube/machines/minikube/id_rsa || echo "No puedo ver la llave RSA"
+
+                    echo "--- 2. Probando carga con sudo y rutas explícitas ---"
+                    # Intentamos cargar la imagen forzando CUALQUIER ruta posible
+                    sudo MINIKUBE_HOME=/home/davidov \
+                         MINIKUBE_PROFILE=minikube \
+                         minikube image load mi-web-uoc:latest --profile minikube
+
+                    echo "--- 3. Verificando si la imagen entró en Minikube ---"
+                    sudo MINIKUBE_HOME=/home/davidov minikube image ls --format table | grep mi-web-uoc || echo "La imagen NO está en Minikube"
+
+                    echo "--- 4. Aplicando y Reiniciando ---"
                     kubectl apply -f deployment.yaml
-                    kubectl apply -f service.yaml
-                    
-                    # Forzamos el reinicio
                     kubectl rollout restart deployment mi-web-uoc
+                    
+                    echo "--- 5. ¿Qué ID de imagen tiene el Pod ahora? ---"
+                    kubectl get pod -l app=web-uoc -o jsonpath='{.items[0].status.containerStatuses[0].imageID}'
                     '''
                 }
             }
