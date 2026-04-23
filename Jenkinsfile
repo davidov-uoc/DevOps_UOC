@@ -25,6 +25,7 @@ pipeline {
             when { branch 'main' }
             steps {
                 script {
+                    eval $(minikube docker-env)
                     sh 'docker build -t mi-web-uoc:${BUILD_NUMBER} .'
                     sh 'docker tag mi-web-uoc:${BUILD_NUMBER} mi-web-uoc:latest'
                 }
