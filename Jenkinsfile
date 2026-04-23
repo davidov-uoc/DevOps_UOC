@@ -25,6 +25,8 @@ pipeline {
             when { branch 'main' }
             steps {
                 script {
+                    // Esto asegura que Docker no use NADA del pasado
+                    sh 'docker system prune -f'
                     // Añadimos --no-cache para que Docker no use versiones viejas del HTML
                     sh 'docker build --no-cache -t mi-web-uoc:${BUILD_NUMBER} .'
                     sh 'docker tag mi-web-uoc:${BUILD_NUMBER} mi-web-uoc:latest'
