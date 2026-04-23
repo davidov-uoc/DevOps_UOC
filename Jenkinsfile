@@ -31,13 +31,19 @@ pipeline {
             }
         }
 
-        stage('4. Deploy to Kubernetes (Deployment only)') {
+        stage('4. Deploy to Kubernetes') {
             when { branch 'main' }
             steps {
                 script {
                     sh '''
+                    # 1. Aplicamos el deployment (el nombre del archivo)
                     kubectl apply -f deployment.yaml
-                    kubectl rollout restart deployment webuoc
+                    
+                    # 2. Aplicamos el service (el nuevo archivo de Alex)
+                    kubectl apply -f service.yaml
+                    
+                    # 3. Reiniciamos el deployment correcto para forzar la actualización
+                    kubectl rollout restart deployment mi-web-uoc
                     '''
                 }
             }
