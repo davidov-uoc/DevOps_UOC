@@ -35,30 +35,22 @@ pipeline {
             }
         }
 
-        stage('4. Deploy to Kubernetes (Debug)') {
+        stage('4. Deploy to Kubernetes') {
             when { branch 'main' }
             steps {
                 script {
                     sh '''
-                    echo "--- 1. ¿Quién soy y qué veo? ---"
-                    id
-                    ls -la /home/davidov/.minikube/machines/minikube/id_rsa || echo "No puedo ver la llave RSA"
-
-                    echo "--- 2. Probando carga con sudo y rutas explícitas ---"
-                    # Intentamos cargar la imagen forzando CUALQUIER ruta posible
-                    sudo MINIKUBE_HOME=/home/davidov \
-                         MINIKUBE_PROFILE=minikube \
-                         minikube image load mi-web-uoc:latest --profile minikube
-
-                    echo "--- 3. Verificando si la imagen entró en Minikube ---"
-                    sudo MINIKUBE_HOME=/home/davidov minikube image ls --format table | grep mi-web-uoc || echo "La imagen NO está en Minikube"
-
-                    echo "--- 4. Aplicando y Reiniciando ---"
-                    kubectl apply -f deployment.yaml
-                    kubectl rollout restart deployment mi-web-uoc
+                    # 1. Cargamos la imagen CON EL NÚMERO DE BUILD (ID único, esto no se puede cachear)
+                    sudo MINIKUBE_HOME=/home/davidov minikube image load mi-web-uoc:${BUILD_NUMBER}
                     
-                    echo "--- 5. ¿Qué ID de imagen tiene el Pod ahora? ---"
-                    kubectl get pod -l app=web-uoc -o jsonpath='{.items[0].status.containerStatuses[0].imageID}'
+                    # 2. Actualizamos el deployment.yaml al vuelo para que use la imagen con el número de build
+                    sed -i "s|image: mi-web-uoc:latest|image: mi-web-uoc:${BUILD_NUMBER}|g" deployment.yaml
+                    
+                    # 3. Aplicamos el cambio
+                    kubectl apply -f deployment.yaml
+                    
+                    # 4. Forzamos el reinicio (aunque al cambiar el nombre de la imagen, K8s lo hará solo)
+                    kubectl rollout restart deployment mi-web-uoc
                     '''
                 }
             }
