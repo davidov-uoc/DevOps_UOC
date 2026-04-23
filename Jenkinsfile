@@ -25,7 +25,8 @@ pipeline {
             when { branch 'main' }
             steps {
                 script {
-                    sh 'docker build -t mi-web-uoc:${BUILD_NUMBER} .'
+                    // Añadimos --no-cache para que Docker no use versiones viejas del HTML
+                    sh 'docker build --no-cache -t mi-web-uoc:${BUILD_NUMBER} .'
                     sh 'docker tag mi-web-uoc:${BUILD_NUMBER} mi-web-uoc:latest'
                 }
             }
