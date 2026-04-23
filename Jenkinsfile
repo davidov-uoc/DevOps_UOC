@@ -20,7 +20,28 @@ pipeline {
                 }
             }
         }
-
+        stage('Debug Entorno') {
+            steps {
+                script {
+                    sh '''
+                    echo "--- Entorno de Jenkins ---"
+                    env | grep -E "DOCKER|KUBECONFIG|MINIKUBE" || echo "No hay variables de entorno Docker/Kube"
+                    
+                    echo "--- Identidad y Rutas ---"
+                    id
+                    which docker
+                    which kubectl
+                    
+                    echo "--- Contexto de Kubernetes ---"
+                    kubectl config current-context
+                    kubectl config view --minify
+                    
+                    echo "--- Estado de Minikube ---"
+                    minikube status || echo "Minikube no accesible para Jenkins"
+                    '''
+                }
+            }
+        }
         stage('3. Build & Tag') {
             when { branch 'main' }
             steps {
