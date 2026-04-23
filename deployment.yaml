@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webuoc
+  name: mi-web-uoc
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: webuoc
+      app: web-uoc
   template:
     metadata:
       labels:
-        app: webuoc
+        app: web-uoc
     spec:
       containers:
-      - name: webuoc
+      - name: nginx
         image: mi-web-uoc:latest
-        imagePullPolicy: Never
+        imagePullPolicy: Never # Importante para que use la imagen local que compiló Jenkins
         ports:
         - containerPort: 80
