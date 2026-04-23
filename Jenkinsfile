@@ -40,14 +40,16 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # 1. Cargamos la imagen en Minikube usando sudo para evitar el error de permisos RSA
-                    sudo minikube image load mi-web-uoc:latest
+                    # Le decimos a sudo que use la configuración de Minikube de davidov
+                    sudo minikube image load mi-web-uoc:latest --profile minikube --user davidov
                     
-                    # 2. Aplicamos los archivos de configuración
+                    # 1. Aplicamos el deployment
                     kubectl apply -f deployment.yaml
+                    
+                    # 2. Aplicamos el service
                     kubectl apply -f service.yaml
                     
-                    # 3. Forzamos el reinicio para que Kubernetes use la nueva imagen cargada
+                    # 3. Forzamos el reinicio
                     kubectl rollout restart deployment mi-web-uoc
                     '''
                 }
