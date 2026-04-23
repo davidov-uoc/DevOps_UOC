@@ -36,10 +36,10 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # 1. Aplicamos el deployment (el nombre del archivo)
+                    # 1. Aplicamos el deployment (el archivo para los pods)
                     kubectl apply -f deployment.yaml
                     
-                    # 2. Aplicamos el service (el nuevo archivo de Alex)
+                    # 2. Aplicamos el service (el archivo para el balanceo)
                     kubectl apply -f service.yaml
                     
                     # 3. Reiniciamos el deployment correcto para forzar la actualización
