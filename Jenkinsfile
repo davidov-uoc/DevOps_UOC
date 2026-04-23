@@ -36,13 +36,16 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # 1. Aplicamos el deployment (el archivo para los pods)
+                    # 1. Pasamos la imagen recién compilada al interior de Minikube
+                    minikube image load mi-web-uoc:latest
+                    
+                    # 2. Aplicamos el deployment (el archivo para los pods)
                     kubectl apply -f deployment.yaml
                     
-                    # 2. Aplicamos el service (el archivo para el balanceo)
+                    # 3. Aplicamos el service (el archivo para el balanceo)
                     kubectl apply -f service.yaml
                     
-                    # 3. Reiniciamos el deployment correcto para forzar la actualización
+                    # 4. Reiniciamos el deployment correcto para forzar la actualización
                     kubectl rollout restart deployment mi-web-uoc
                     '''
                 }
