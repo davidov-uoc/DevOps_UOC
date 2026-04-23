@@ -60,6 +60,10 @@ pipeline {
             steps {
                 script {
                     sh '''
+
+                    export MINIKUBE_HOME=/var/lib/jenkins
+                    minikube image load mi-web-uoc:latest
+                    kubectl rollout restart deployment mi-web-uoc
                     # 1. Forzamos el borrado en Minikube para que no ignore la carga
                     minikube image rm mi-web-uoc:latest || true
                     
