@@ -25,11 +25,14 @@ pipeline {
             when { branch 'main' }
             steps {
                 script {
-                    sh 'docker build -t mi-web-uoc:${BUILD_NUMBER} .'
-                    sh 'docker tag mi-web-uoc:${BUILD_NUMBER} mi-web-uoc:latest'
+                    sh '''
+                    # Apuntar al Docker daemon de Minikube
+                    eval $(minikube docker-env)
                     
-                    // Cargar la imagen en Minikube
-                    sh 'minikube image load mi-web-uoc:latest'
+                    # Ahora construimos dentro del contexto de Minikube
+                    docker build -t mi-web-uoc:${BUILD_NUMBER} .
+                    docker tag mi-web-uoc:${BUILD_NUMBER} mi-web-uoc:latest
+                    '''
                 }
             }
         }
