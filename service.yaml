@@ -9,5 +9,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80          # puerto del servicio
-      targetPort: 8081  # puerto del contenedor
+      targetPort: 80    # puerto del contenedor
       nodePort: 30080   # puerto externo (30000-32767)
